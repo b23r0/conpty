@@ -46,7 +46,7 @@ use windows::Win32::System::Console::{
 };
 use windows::Win32::System::Pipes::CreatePipe;
 use windows::Win32::System::Threading::{
-    CreateProcessW, DeleteProcThreadAttributeList, GetExitCodeProcess, GetProcessId,
+    CreateProcessW, GetExitCodeProcess, GetProcessId,
     InitializeProcThreadAttributeList, TerminateProcess, UpdateProcThreadAttribute,
     WaitForSingleObject, CREATE_UNICODE_ENVIRONMENT, EXTENDED_STARTUPINFO_PRESENT,
     LPPROC_THREAD_ATTRIBUTE_LIST, PROCESS_INFORMATION, STARTUPINFOEXW,
@@ -64,7 +64,7 @@ pub struct Process {
     pty_input: HANDLE,
     pty_output: HANDLE,
     _proc: PROCESS_INFORMATION,
-    _proc_info: STARTUPINFOEXW,
+    //_proc_info: STARTUPINFOEXW,
     _console: HPCON,
 }
 
@@ -80,7 +80,7 @@ impl Process {
             pty_output: pty_reader,
             _console: console,
             _proc: proc,
-            _proc_info: startup_info,
+            //_proc_info: startup_info,
         })
     }
 
@@ -185,8 +185,8 @@ impl Drop for Process {
             let _ = CloseHandle(self._proc.hProcess);
             let _ = CloseHandle(self._proc.hThread);
 
-            DeleteProcThreadAttributeList(self._proc_info.lpAttributeList);
-            let _ = Box::from_raw(self._proc_info.lpAttributeList as _);
+            //DeleteProcThreadAttributeList(self._proc_info.lpAttributeList);
+            //let _ = Box::from_raw(self._proc_info.lpAttributeList as _);
 
             let _ = CloseHandle(self.pty_input);
             let _ = CloseHandle(self.pty_output);
