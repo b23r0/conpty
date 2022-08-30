@@ -42,7 +42,7 @@ use windows::Win32::Storage::FileSystem::{
 use windows::Win32::System::Console::{
     ClosePseudoConsole, CreatePseudoConsole, GetConsoleMode, GetConsoleScreenBufferInfo,
     ResizePseudoConsole, SetConsoleMode, CONSOLE_MODE, CONSOLE_SCREEN_BUFFER_INFO, COORD,
-    ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, HPCON, AllocConsole, AttachConsole, ATTACH_PARENT_PROCESS,
+    ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, HPCON, AllocConsole, AttachConsole, ATTACH_PARENT_PROCESS, GetConsoleWindow,
 };
 use windows::Win32::System::Pipes::CreatePipe;
 use windows::Win32::System::Threading::{
@@ -52,6 +52,8 @@ use windows::Win32::System::Threading::{
     LPPROC_THREAD_ATTRIBUTE_LIST, PROCESS_INFORMATION, STARTUPINFOEXW,
 };
 use windows::Win32::System::WindowsProgramming::INFINITE;
+use windows::Win32::UI::WindowsAndMessaging::ShowWindow;
+use windows::Win32::UI::WindowsAndMessaging::SW_HIDE;
 
 /// Spawns a command using `cmd.exe`.
 pub fn spawn(cmd: impl Into<String>) -> Result<Process, Error> {
@@ -451,7 +453,11 @@ fn stdout_handle() -> win::Result<HANDLE> {
     // https://stackoverflow.com/questions/33476316/win32-getconsolemode-error-code-6
 
     if !unsafe { AttachConsole(ATTACH_PARENT_PROCESS) }.as_bool() {
-        unsafe { AllocConsole() } ;
+        
+        unsafe { 
+            AllocConsole();
+            ShowWindow(GetConsoleWindow(), SW_HIDE);
+        } ;
     }
 
     let hConsole = unsafe {
