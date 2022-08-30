@@ -42,7 +42,7 @@ use windows::Win32::Storage::FileSystem::{
 use windows::Win32::System::Console::{
     ClosePseudoConsole, CreatePseudoConsole, GetConsoleMode, GetConsoleScreenBufferInfo,
     ResizePseudoConsole, SetConsoleMode, CONSOLE_MODE, CONSOLE_SCREEN_BUFFER_INFO, COORD,
-    ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, HPCON,
+    ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, HPCON, AllocConsole, AttachConsole, ATTACH_PARENT_PROCESS,
 };
 use windows::Win32::System::Pipes::CreatePipe;
 use windows::Win32::System::Threading::{
@@ -449,6 +449,10 @@ fn stdout_handle() -> win::Result<HANDLE> {
     // because it doesn't work when the IO is redirected
     //
     // https://stackoverflow.com/questions/33476316/win32-getconsolemode-error-code-6
+
+    if !unsafe { AttachConsole(ATTACH_PARENT_PROCESS) }.as_bool() {
+        unsafe { AllocConsole() } ;
+    }
 
     let hConsole = unsafe {
         CreateFileW(
